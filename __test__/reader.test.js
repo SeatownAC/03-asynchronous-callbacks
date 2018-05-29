@@ -1,34 +1,54 @@
 'use strict';
 
-// When mocking out embedded modules like fs or buffer, you have to tell jest to mock it
-// For 3rd party modules, you can "auto" mock them by simply putting them in the correct __mocks__ folder
-jest.mock('fs');
+
+//jest.mock('fs');
 
 const reader = require('../../lib/reader.js');
 
-describe('File Reader Module', () => {
+describe('Reader Module', () => {
 
-  it('when given a bad file, returns an error', () => {
-    // Note that the actual path here doesn't really matter.
-    // If we weren't mocking, it would.  The "fs" module would need
-    // to find the actual file.
-    //
-    // Also note that this file is named "bad.txt".  Our mock fs module
-    // will always return an error if a file has the word "bad" in its name
-    let file = `${__dirname}/../../data/bad.txt`;
-    reader(file, (err,data) => {
-      expect(err).toBeDefined();
+  it('should callback with error for a non-existant file', (done) => {
+    reader(['missing.txt'], (err) => {
+      expect(err).not.toBeNull();
+
+      done();
     });
   });
 
-  it('when given a real file, returns the contents', () => {
-    let file = `${__dirname}/../../data/file1.txt`;
-    reader(file, (err,data) => {
-      expect(err).toBeUndefined();
-      // We don't need to care what the text is, only that we got back a string
-      // That's the interface of our reader module: Give a file+cb, get back stringified  contents
-      expect(typeof data).toBe('string');
+  it('should callback with file contents of one file', (done) => {
+    const expected = 'all things kittens';
+    reader([__dirname + '/../data/kittens.txt'], (err, contents) => {
+      expect(err).toBeNull();
+      const actual = contents.toString();
+      expect(actual).toBe(expected);
+      done();
     });
+  });
+  it('should callback all the contents of the files in order', (done) => {
+    let paths = [];
+    for(let item of ['kittens.txt', 'monkeys.txt', 'puppies.txt']) {
+      paths.push(__dirname + '/../data/' + item);
+    }
+    let expected, actual;
+    reader(paths, (err, contents) => {
+      expected = 'all things kittens';
+      expect(err).toBeNull();
+      actual = contents[0];
+      expect(actual).toBe(expected);
+
+      expected = 'all things monkeys';
+      actual = contents[1];
+      expect(actual).toBe(expected);
+
+      expected = 'all things puppies';
+      actual = contents[2];
+      expect(actual).toBe(expected);
+        
+      done();
+
+    });
+
   });
 
 });
+
