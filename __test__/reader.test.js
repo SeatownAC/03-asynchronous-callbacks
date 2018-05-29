@@ -7,9 +7,9 @@ const reader = require('../../lib/reader.js');
 
 describe('Reader Module', () => {
 
-  it('should callback with error for a non-existant file', (done) => {
-    reader(['missing.txt'], (err) => {
-      expect(err).not.toBeNull();
+  it('should callback with error for file that does not exist', (done) => {
+    read(['missing.txt'], (err) => {
+      expect(err).not.undefined();
 
       done();
     });
@@ -17,7 +17,7 @@ describe('Reader Module', () => {
 
   it('should callback with file contents of one file', (done) => {
     const expected = 'all things kittens';
-    reader([__dirname + '/../data/kittens.txt'], (err, contents) => {
+    read([__dirname + '/../data/kittens.txt'], (err, contents) => {
       expect(err).toBeNull();
       const actual = contents.toString();
       expect(actual).toBe(expected);
@@ -30,7 +30,7 @@ describe('Reader Module', () => {
       paths.push(__dirname + '/../data/' + item);
     }
     let expected, actual;
-    reader(paths, (err, contents) => {
+    read(paths, (err, contents) => {
       expected = 'all things kittens';
       expect(err).toBeNull();
       actual = contents[0];
